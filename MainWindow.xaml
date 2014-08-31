@@ -1,82 +1,76 @@
 ﻿<Window
+        xml:lang="el-GR"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-        xmlns:Models="clr-namespace:estia.pos.Models" x:Class="estia.pos.MainWindow"
+        xmlns:Models="clr-namespace:estia.pos.Models"
         xmlns:ViewModels="clr-namespace:estia.pos.ViewModels"
-        Title="Πληρωμή Λογαρισμού" Height="600" Width="800">
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="estia.pos.MainWindow"
+        Title="Πληρωμή Λογαρισμού" Height="600" Width="800" Loaded="Window_Loaded">
 
     <Window.Resources>
-        <CollectionViewSource x:Key="SortedItems" Source="{Binding ElementName=BuildCombo, Path=SelectedItem.appartments}">
+        <CollectionViewSource x:Key="SortedItems" Source="{Binding SelectedItem.appartments, ElementName=BuildCombo}">
             <CollectionViewSource.SortDescriptions>
                 <scm:SortDescription PropertyName="sn"/>
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <BooleanToVisibilityConverter x:Key="convVisibility"/>
-        <ViewModels:Payment x:Key="myDataSource"/>
+        <CollectionViewSource x:Key="myDataSource" d:DesignSource="{d:DesignInstance {x:Type ViewModels:Payment}, CreateList=True}"/>
     </Window.Resources>
 
+    <ScrollViewer >
     <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
         <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10">
             <GroupBox.Header>
-                <TextBlock FontWeight="Bold">
-                    1. Επιλογή Τρόπου Αναζήτησης Λογιαριασμού
-                </TextBlock>
+                <TextBlock FontWeight="Bold"><Run Text="1. Επιλογή Τρόπου Αναζήτησης Λογιαριασμού"/></TextBlock>
             </GroupBox.Header>
             <StackPanel Orientation="Horizontal">
-                <RadioButton Name="query" Content="Αναζήτηση Διαμερίσματος" IsChecked="True"/>
-                <RadioButton Name="scan" Content="Συμπλήρωση Αριθμού Λογαριασμού" IsChecked="False" Margin="10,0,0,0"/>
+                <RadioButton x:Name="query" Content="Αναζήτηση Διαμερίσματος" IsChecked="True"/>
+                <RadioButton x:Name="scan" Content="Συμπλήρωση Αριθμού Λογαριασμού" IsChecked="False" Margin="10,0,0,0"/>
             </StackPanel>
         </GroupBox>
         <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10"
-                  Visibility="{Binding IsChecked, ElementName=query, Converter={StaticResource convVisibility}}">
+			Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=query}">
             <GroupBox.Header>
-                <TextBlock FontWeight="Bold">
-                    2. Αναζήτηση Διαμερίσματος
-                </TextBlock>
+                <TextBlock FontWeight="Bold"><Run Text="2. Αναζήτηση Διαμερίσματος"/></TextBlock>
             </GroupBox.Header>
             <StackPanel Orientation="Horizontal">
                 <Label Content="Κτίριο" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <ComboBox x:Name="BuildCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="274"
-                      DisplayMemberPath="Title"
-                      SelectedValuePath="BuildId"
-                      SelectedValue="{Binding Path=BuildId}" />
+					DisplayMemberPath="Title"
+					SelectedValuePath="BuildId"
+					SelectedValue="{Binding BuildId, Source={StaticResource myDataSource}}" />
                 <Label Content="Διαμέρισμα" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
                 <ComboBox x:Name="AppCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" 
-                      ItemsSource="{Binding Source={StaticResource SortedItems}}"
-                      DisplayMemberPath="apptitle" 
-                      SelectedValuePath="appid" 
-                      SelectedValue="{Binding Path=appid}" />
-                <Button  Margin="10,0,0,0" Padding="5" Click="findAccount">Αναζήτηση</Button>
+					ItemsSource="{Binding Source={StaticResource SortedItems}}"
+					DisplayMemberPath="apptitle" 
+					SelectedValuePath="appid" 
+					SelectedValue="{Binding AppId, Source={StaticResource myDataSource}}" />
+                <Button  Margin="10,0,0,0" Padding="5" Click="findAccount" Content="Αναζήτηση"/>
             </StackPanel>
         </GroupBox>
         <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10"
-                  Visibility="{Binding IsChecked, ElementName=scan, Converter={StaticResource convVisibility}}">
+			Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=scan}">
             <GroupBox.Header>
-                <TextBlock FontWeight="Bold">
-                    2. Συμπλήρωση Αριθμού Λογαριασμού
-                </TextBlock>
+                <TextBlock FontWeight="Bold"><Run Text="2. Συμπλήρωση Αριθμού Λογαριασμού"/></TextBlock>
             </GroupBox.Header>
             <StackPanel Orientation="Horizontal">
-                <TextBox Width="320" />
-                <Button  Margin="10,0,0,0" Padding="5" Click="findAccount">Αναζήτηση</Button>
+                <TextBox Width="320" Text="{Binding Barcode, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                <Button  Margin="10,0,0,0" Padding="5" Click="findBarCode" Content="Αναζήτηση"/>
             </StackPanel>
         </GroupBox>
         <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10">
             <GroupBox.Header>
-                <TextBlock FontWeight="Bold">
-                    3. Οφειλή Διαμερίσματος
-                </TextBlock>
+                <TextBlock FontWeight="Bold"><Run Text="3. Οφειλή Διαμερίσματος"/></TextBlock>
             </GroupBox.Header>
             <DockPanel HorizontalAlignment="Stretch">
-                <Label Name="TotalDept" FontWeight="Bold" HorizontalAlignment="Center" />
+                <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
+                       Content="{Binding Dept, Source={StaticResource myDataSource}}"/>
             </DockPanel>
         </GroupBox>
         <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10">
             <GroupBox.Header>
-                <TextBlock FontWeight="Bold">
-                    4. Παρέλαβα
-                </TextBlock>
+                <TextBlock FontWeight="Bold"><Run Text="4. Παρέλαβα"/></TextBlock>
             </GroupBox.Header>
             <Grid VerticalAlignment="Stretch">
                 <Grid.Resources>
@@ -102,51 +96,88 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Label Grid.Column="0" Grid.Row="0" FontWeight="Bold" HorizontalAlignment="Right">Ποσότητα</Label>
-                <Label Grid.Column="1" Grid.Row="0" FontWeight="Bold" HorizontalAlignment="Right">Ευρώ</Label>
-                <Label Grid.Column="2" Grid.Row="0" FontWeight="Bold" HorizontalAlignment="Right">Ποσότητα</Label>
-                <Label Grid.Column="3" Grid.Row="0" FontWeight="Bold" HorizontalAlignment="Right">Λεπτά</Label>
+                <Label Grid.Column="0" Grid.Row="0" FontWeight="Bold" HorizontalAlignment="Right" Content="Ποσότητα"/>
+                <Label Grid.Column="1" Grid.Row="0" FontWeight="Bold" HorizontalAlignment="Right" Content="Ευρώ"/>
+                <Label Grid.Column="2" Grid.Row="0" FontWeight="Bold" HorizontalAlignment="Right" Content="Ποσότητα"/>
+                <Label Grid.Column="3" Grid.Row="0" FontWeight="Bold" HorizontalAlignment="Right" Content="Λεπτά"/>
+                
                 <TextBox Grid.Column="0" Grid.Row="1" Width="50" HorizontalAlignment="Right" 
-                         Text="{Binding Source={StaticResource myDataSource}, Path=FiveHundred}"></TextBox>
-                <Label Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right">500</Label>
+					Text="{Binding FiveHundred, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Content="500"/>
+                
                 <TextBox Grid.Column="0" Grid.Row="2" Width="50" HorizontalAlignment="Right"
-                         Text="{Binding Source={StaticResource myDataSource}, Path=OneHundred}"></TextBox>
-                <Label Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right">100</Label>
+					Text="{Binding OneHundred, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" Content="100"/>
+                
                 <TextBox Grid.Column="0" Grid.Row="3" Width="50" HorizontalAlignment="Right"
-                         Text="{Binding Source={StaticResource myDataSource}, Path=Name}"></TextBox>
-                <Label Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right">50</Label>
+					Text="{Binding Fifty, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right" Content="50"/>
+                
                 <TextBox Grid.Column="0" Grid.Row="4" Width="50" HorizontalAlignment="Right"
-                         Text="{Binding Source={StaticResource myDataSource}, Path=Name}"></TextBox>
-                <Label Grid.Column="1" Grid.Row="4" HorizontalAlignment="Right">20</Label>
+					Text="{Binding Twenty, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="1" Grid.Row="4" HorizontalAlignment="Right" Content="20"/>
+                
                 <TextBox Grid.Column="0" Grid.Row="5" Width="50" HorizontalAlignment="Right"
-                         Text="{Binding Source={StaticResource myDataSource}, Path=Name}"></TextBox>
-                <Label Grid.Column="1" Grid.Row="5" HorizontalAlignment="Right">10</Label>
+					Text="{Binding Ten, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="1" Grid.Row="5" HorizontalAlignment="Right" Content="10"/>
+                
                 <TextBox Grid.Column="0" Grid.Row="6" Width="50" HorizontalAlignment="Right"
-                         Text="{Binding Source={StaticResource myDataSource}, Path=Name}"></TextBox>
-                <Label Grid.Column="1" Grid.Row="6" HorizontalAlignment="Right">5</Label>
+					Text="{Binding Five, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="1" Grid.Row="6" HorizontalAlignment="Right" Content="5"/>
+                
                 <TextBox Grid.Column="0" Grid.Row="7" Width="50" HorizontalAlignment="Right"
-                         Text="{Binding Source={StaticResource myDataSource}, Path=Name}"></TextBox>
-                <Label Grid.Column="1" Grid.Row="7" HorizontalAlignment="Right">2</Label>
+					Text="{Binding Two, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="1" Grid.Row="7" HorizontalAlignment="Right" Content="2"/>
+                
                 <TextBox Grid.Column="0" Grid.Row="8" Width="50" HorizontalAlignment="Right"
-                         Text="{Binding Source={StaticResource myDataSource}, Path=Name}"></TextBox>
-                <Label Grid.Column="1" Grid.Row="8" HorizontalAlignment="Right">1</Label>
-                <TextBox Grid.Column="2" Grid.Row="1" Width="50" HorizontalAlignment="Right"></TextBox>
-                <Label Grid.Column="3" Grid.Row="1" HorizontalAlignment="Right">50</Label>
-                <TextBox Grid.Column="2" Grid.Row="2" Width="50" HorizontalAlignment="Right"></TextBox>
-                <Label Grid.Column="3" Grid.Row="2" HorizontalAlignment="Right">20</Label>
-                <TextBox Grid.Column="2" Grid.Row="3" Width="50" HorizontalAlignment="Right"></TextBox>
-                <Label Grid.Column="3" Grid.Row="3" HorizontalAlignment="Right">10</Label>
-                <TextBox Grid.Column="2" Grid.Row="4" Width="50" HorizontalAlignment="Right"></TextBox>
-                <Label Grid.Column="3" Grid.Row="4" HorizontalAlignment="Right">5</Label>
-                <TextBox Grid.Column="2" Grid.Row="5" Width="50" HorizontalAlignment="Right"></TextBox>
-                <Label Grid.Column="3" Grid.Row="5" HorizontalAlignment="Right">2</Label>
-                <TextBox Grid.Column="2" Grid.Row="6" Width="50" HorizontalAlignment="Right"></TextBox>
-                <Label Grid.Column="3" Grid.Row="6" HorizontalAlignment="Right">1</Label>
-                <Label Name="Payment" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="9" 
-                       HorizontalAlignment="Center" FontWeight="Bold"
-                       Content="{Binding Source={StaticResource myDataSource}, Path=Total}"></Label>
+					Text="{Binding One, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="1" Grid.Row="8" HorizontalAlignment="Right" Content="1"/>
+                
+                <TextBox Grid.Column="2" Grid.Row="1" Width="50" HorizontalAlignment="Right"
+                         Text="{Binding FiftyCents, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="3" Grid.Row="1" HorizontalAlignment="Right" Content="50"/>
+                
+                <TextBox Grid.Column="2" Grid.Row="2" Width="50" HorizontalAlignment="Right"
+                         Text="{Binding TwentyCents, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="3" Grid.Row="2" HorizontalAlignment="Right" Content="20"/>
+                
+                <TextBox Grid.Column="2" Grid.Row="3" Width="50" HorizontalAlignment="Right"
+                         Text="{Binding TenCents, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="3" Grid.Row="3" HorizontalAlignment="Right" Content="10"/>
+                
+                <TextBox Grid.Column="2" Grid.Row="4" Width="50" HorizontalAlignment="Right"
+                         Text="{Binding FiveCents, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="3" Grid.Row="4" HorizontalAlignment="Right" Content="5"/>
+                
+                <TextBox Grid.Column="2" Grid.Row="5" Width="50" HorizontalAlignment="Right"
+                         Text="{Binding TwoCents, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="3" Grid.Row="5" HorizontalAlignment="Right" Content="2"/>
+                
+                <TextBox Grid.Column="2" Grid.Row="6" Width="50" HorizontalAlignment="Right"
+                         Text="{Binding OneCent, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Grid.Column="3" Grid.Row="6" HorizontalAlignment="Right" Content="1"/>
+                
+                <Label x:Name="Payment" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="9" 
+					HorizontalAlignment="Center" FontWeight="Bold" ContentStringFormat="Σύνολο: {0:c2}"
+					Content="{Binding Total, Source={StaticResource myDataSource}}"/>
             </Grid>
         </GroupBox>
+        <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10">
+            <GroupBox.Header>
+                <TextBlock FontWeight="Bold"><Run Text="5. Ποσό Εξόφλησης"/></TextBlock>
+            </GroupBox.Header>
+            <StackPanel Orientation="Horizontal">
+                    <RadioButton VerticalAlignment="Center" x:Name="all" Content="Όλο το ποσό της οφειλής" IsChecked="True"/>
+                    <RadioButton VerticalAlignment="Center" x:Name="part" Content="Μέρος του ποσού της οφειλής" IsChecked="False" Margin="10,0,0,0"/>
+                    <TextBox VerticalAlignment="Center" Margin="10,0,0,0" Width="100" 
+                             Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=part}"
+                             Text="{Binding Amount, Source={StaticResource myDataSource}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                    <Button VerticalAlignment="Center"  Margin="10,0,0,0" Padding="5" Click="calcReturn" Content="Ρέστα"/>
+                    <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Ρέστα: {0:c2}"
+                       Content="{Binding Refound, Source={StaticResource myDataSource}}"/>
+                </StackPanel>
+        </GroupBox>        
     </StackPanel>
-
+    </ScrollViewer>
+        
 </Window>

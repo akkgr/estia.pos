@@ -16,3 +16,17 @@ D:\tmp\estia.pos\estia.pos\obj\Debug\estia.pos.csproj.GenerateResource.Cache
 D:\tmp\estia.pos\estia.pos\obj\Debug\estia.pos.exe
 D:\tmp\estia.pos\estia.pos\obj\Debug\estia.pos.pdb
 D:\tmp\estia.pos\estia.pos\obj\Debug\GeneratedInternalTypeHelper.g.cs
+D:\github\estia.pos\bin\Debug\estia.pos.exe.config
+D:\github\estia.pos\obj\Debug\estia.pos.exe
+D:\github\estia.pos\obj\Debug\estia.pos.pdb
+D:\github\estia.pos\bin\Debug\estia.pos.exe
+D:\github\estia.pos\bin\Debug\estia.pos.pdb
+D:\github\estia.pos\bin\Debug\EntityFramework.xml
+D:\github\estia.pos\obj\Debug\MainWindow.g.cs
+D:\github\estia.pos\obj\Debug\App.g.cs
+D:\github\estia.pos\obj\Debug\estia.pos_MarkupCompile.cache
+D:\github\estia.pos\obj\Debug\estia.pos_MarkupCompile.lref
+D:\github\estia.pos\obj\Debug\MainWindow.baml
+D:\github\estia.pos\obj\Debug\estia.pos.g.resources
+D:\github\estia.pos\obj\Debug\estia.pos.Properties.Resources.resources
+D:\github\estia.pos\obj\Debug\estia.pos.csproj.GenerateResource.Cache
