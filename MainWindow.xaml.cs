@@ -24,25 +24,25 @@ namespace estia.pos
     public partial class MainWindow : Window
     {
         private EstiaModel db;
-        private ObservableCollection<Payment> payments;
+        private Payment payment;
         public MainWindow()
         {
             InitializeComponent();
 
             db = new EstiaModel();
-            payments = new ObservableCollection<Payment>();
+            payment = new Payment();
 
             this.Loaded += Window_Loaded;
         }
         
         private void findAccount(object sender, RoutedEventArgs e)
         {
-            var id = payments[0].AppId;
+            
             var s = (from p in db.XreosiPistosis
-                     where p.appid == id
+                     where p.appid == payment.AppId
                      select p.poso).Sum();
 
-            payments[0].Dept = s;
+            payment.Dept = s;
         }
 
         private void findBarCode(object sender, RoutedEventArgs e)
@@ -52,7 +52,8 @@ namespace estia.pos
 
         private void calcReturn(object sender, RoutedEventArgs e)
         {
-            payments[0].Refound = payments[0].Total -  payments[0].Amount;
+            if (payment.Amount == 0) payment.Amount = payment.Dept;
+            payment.Refound = payment.Total -  payment.Amount;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -63,9 +64,7 @@ namespace estia.pos
                                select b;
 
             this.BuildCombo.ItemsSource = buildingList.ToList();
-            var vs = ((CollectionViewSource)(this.FindResource("myDataSource")));
-            payments.Add(new ViewModels.Payment());
-            vs.Source = payments;
+            this.DataContext = payment;
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
