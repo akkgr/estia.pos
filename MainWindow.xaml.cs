@@ -30,26 +30,56 @@ namespace estia.pos
             InitializeComponent();
 
             db = new EstiaModel();
-            payment = new Payment();
-
+            payment = new Payment() { SearchOption="Page2"};
+            pageOrder();
             this.Loaded += Window_Loaded;
+            payment.PropertyChanged += payment_PropertyChanged;
+            this.Wizard1.Next += Wizard1_Next;
+        }
+
+        void Wizard1_Next(object sender, Xceed.Wpf.Toolkit.Core.CancelRoutedEventArgs e)
+        {
+            if (this.Wizard1.CurrentPage == Page1)
+            {
+                if (payment.AppId == 0)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
+                var q = from p in db.XreosiPistosis
+                         where p.appid == payment.AppId
+                         select p.poso;
+
+                payment.BuildTitle = (this.BuildCombo.SelectedItem as Building).Title;
+                payment.AppTitle = (this.AppCombo.SelectedItem as appartment).FullTitle;
+                payment.Dept = q.Count()==0?0M:q.Sum();
+            }
+        }
+
+        void payment_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals("SearchOption"))
+            {
+                pageOrder();
+            }
         }
         
-        private void findAccount(object sender, RoutedEventArgs e)
+
+        private void pageOrder()
         {
-            
-            var s = (from p in db.XreosiPistosis
-                     where p.appid == payment.AppId
-                     select p.poso).Sum();
-
-            payment.Dept = s;
+            if (payment.SearchOption.Equals("Page1"))
+            {
+                this.FirstPage.NextPage = this.Page1;
+                this.Page3.PreviousPage = this.Page1;
+            }
+            else
+            {
+                this.FirstPage.NextPage = this.Page2;
+                this.Page3.PreviousPage = this.Page2;
+            }
         }
-
-        private void findBarCode(object sender, RoutedEventArgs e)
-        {
-
-        }
-
+                
         private void calcReturn(object sender, RoutedEventArgs e)
         {
             if (payment.Amount == 0) payment.Amount = payment.Dept;
@@ -59,7 +89,7 @@ namespace estia.pos
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             var buildingList = from b in db.Buildings
-                               where b.Active == true
+                               where b.Active == true && b.Managment == 1
                                orderby b.Street, b.StreetNumber
                                select b;
 

@@ -6,6 +6,7 @@
         xmlns:Models="clr-namespace:estia.pos.Models"
         xmlns:ViewModels="clr-namespace:estia.pos.ViewModels"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:local="clr-namespace:estia.pos.Helpers"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="estia.pos.MainWindow"
         Title="Πληρωμή Λογαρισμού" Height="600" Width="800" Loaded="Window_Loaded">
 
@@ -16,98 +17,96 @@
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
         <BooleanToVisibilityConverter x:Key="convVisibility"/>
+        <local:BooleanToStringValueConverter x:Key="BooleanToStringValueConverter" />
     </Window.Resources>
 
-    <xctk:BusyIndicator IsBusy="False" >
-        <ScrollViewer >
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-                <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10">
-                    <GroupBox.Header>
-                        <TextBlock FontWeight="Bold"><Run Text="1. Επιλογή Τρόπου Αναζήτησης Λογιαριασμού"/></TextBlock>
-                    </GroupBox.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <RadioButton x:Name="query" Content="Αναζήτηση Διαμερίσματος" IsChecked="True"/>
-                        <RadioButton x:Name="scan" Content="Συμπλήρωση Αριθμού Λογαριασμού" IsChecked="False" Margin="10,0,0,0"/>
-                    </StackPanel>
-                </GroupBox>
-                <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10"
-			Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=query}">
-                    <GroupBox.Header>
-                        <TextBlock FontWeight="Bold"><Run Text="2. Αναζήτηση Διαμερίσματος"/></TextBlock>
-                    </GroupBox.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="Κτίριο" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="BuildCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="274"
+    <xctk:Wizard x:Name="Wizard1" FinishButtonClosesWindow="True" CanHelp="False">
+        <xctk:WizardPage x:Name="FirstPage" 
+                                   Title="Πληρωμή Λογαριασμού"
+                                   Description="Επιλογή Τρόπου Αναζήτησης Λογιαριασμού.">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="query" Content="Αναζήτηση Διαμερίσματος"
+                             IsChecked="{Binding Path=SearchOption, Converter={StaticResource BooleanToStringValueConverter}, ConverterParameter=Page1}"/>
+                <RadioButton x:Name="scan" Content="Συμπλήρωση Αριθμού Λογαριασμού" Margin="10,0,0,0"
+                             IsChecked="{Binding Path=SearchOption, Converter={StaticResource BooleanToStringValueConverter}, ConverterParameter=Page2}"/>
+            </StackPanel>
+        </xctk:WizardPage>
+        <xctk:WizardPage x:Name="Page1" PageType="Interior"
+                                   Title="1ο βήμα"
+                                   Description="Αναζήτηση Διαμερίσματος."
+                         NextPage="{Binding ElementName=Page3}"
+                         Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=query}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                <Label Content="Κτίριο" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <ComboBox x:Name="BuildCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="274"
 					DisplayMemberPath="Title"
 					SelectedValuePath="BuildID"
 					SelectedValue="{Binding BuildId}" />
-                        <Label Content="Διαμέρισμα" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                        <ComboBox x:Name="AppCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" 
+                <Label Content="Διαμέρισμα" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <ComboBox x:Name="AppCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" 
 					ItemsSource="{Binding Source={StaticResource SortedItems}}"
-					DisplayMemberPath="apptitle" 
+					DisplayMemberPath="FullTitle" 
 					SelectedValuePath="appid" 
 					SelectedValue="{Binding AppId}" />
-                        <Button  Margin="10,0,0,0" Padding="5" Click="findAccount" Content="Αναζήτηση"/>
-                    </StackPanel>
-                </GroupBox>
-                <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10"
-			Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=scan}">
-                    <GroupBox.Header>
-                        <TextBlock FontWeight="Bold"><Run Text="2. Συμπλήρωση Αριθμού Λογαριασμού"/></TextBlock>
-                    </GroupBox.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox Width="320" Text="{Binding Barcode, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                        <Button  Margin="10,0,0,0" Padding="5" Click="findBarCode" Content="Αναζήτηση"/>
-                    </StackPanel>
-                </GroupBox>
-                <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10">
-                    <GroupBox.Header>
-                        <TextBlock FontWeight="Bold"><Run Text="3. Οφειλή Διαμερίσματος"/></TextBlock>
-                    </GroupBox.Header>
-                    <DockPanel HorizontalAlignment="Stretch">
-                        <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
+            </StackPanel>
+        </xctk:WizardPage>
+        <xctk:WizardPage x:Name="Page2" PageType="Interior"
+                                   Title="1ο βήμα"
+                                   Description="Συμπλήρωση Αριθμού Λογαριασμού"
+                         PreviousPage="{Binding ElementName=FirstPage}"
+                         Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=scan}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
+                <TextBox Width="320" Text="{Binding Barcode, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+        </xctk:WizardPage>
+        <xctk:WizardPage x:Name="Page3" PageType="Interior"
+                                   Title="2ο βήμα"
+                                   Description="Οφειλή Διαμερίσματος">
+            <DockPanel HorizontalAlignment="Stretch">
+                <Label FontWeight="Bold" HorizontalAlignment="Center"
+                       Content="{Binding BuildTitle, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label FontWeight="Bold" HorizontalAlignment="Center"
+                       Content="{Binding AppTitle, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
                        Content="{Binding Dept, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                    </DockPanel>
-                </GroupBox>
-                <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10">
-                    <GroupBox.Header>
-                        <TextBlock FontWeight="Bold"><Run Text="4. Παρέλαβα"/></TextBlock>
-                    </GroupBox.Header>
-                    <StackPanel>
-                        <ItemsControl ItemsSource="{Binding Coins}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,0,0,5">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="100" />
-                                        </Grid.ColumnDefinitions>
-                                        <Label Grid.Column="0" Content="{Binding Title}"/>
-                                        <xctk:ByteUpDown Grid.Column="1" Text="{Binding Quantity, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
+            </DockPanel>
+        </xctk:WizardPage>
+        <xctk:WizardPage x:Name="Page4" PageType="Interior"
+                                   Title="3ο βήμα"
+                                   Description="Παρέλαβα">
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding Coins}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="100" />
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="{Binding Title}"/>
+                                <xctk:ByteUpDown Grid.Column="1" Text="{Binding Quantity, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
                                 Content="{Binding Total, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                </GroupBox>
-                <GroupBox HorizontalAlignment="Stretch" Padding="10" Margin="10">
-                    <GroupBox.Header>
-                        <TextBlock FontWeight="Bold"><Run Text="5. Ποσό Εξόφλησης"/></TextBlock>
-                    </GroupBox.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <RadioButton VerticalAlignment="Center" x:Name="all" Content="Όλο το ποσό της οφειλής" IsChecked="True"/>
-                        <RadioButton VerticalAlignment="Center" x:Name="part" Content="Μέρος του ποσού της οφειλής" IsChecked="False" Margin="10,0,0,0"/>
-                        <TextBox VerticalAlignment="Center" Margin="10,0,0,0" Width="100" 
+            </StackPanel>
+        </xctk:WizardPage>
+        <xctk:WizardPage x:Name="LastPage" PageType="Interior"
+                                   Title="Ολοκλήρωση"
+                                   Description="Ποσό Εξόφλησης"
+                                   CanFinish="True">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton VerticalAlignment="Center" x:Name="all" Content="Όλο το ποσό της οφειλής" IsChecked="True"/>
+                <RadioButton VerticalAlignment="Center" x:Name="part" Content="Μέρος του ποσού της οφειλής" IsChecked="False" Margin="10,0,0,0"/>
+                <TextBox VerticalAlignment="Center" Margin="10,0,0,0" Width="100" 
                              Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=part}"
                              Text="{Binding Amount, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                        <Button VerticalAlignment="Center"  Margin="10,0,0,0" Padding="5" Click="calcReturn" Content="Ρέστα"/>
-                        <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Ρέστα: {0:c2}"
+                <Button VerticalAlignment="Center"  Margin="10,0,0,0" Padding="5" Click="calcReturn" Content="Ρέστα"/>
+                <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Ρέστα: {0:c2}"
                        Content="{Binding Refound}"/>
-                    </StackPanel>
-                </GroupBox>
             </StackPanel>
-        </ScrollViewer>
-    </xctk:BusyIndicator>
+        </xctk:WizardPage>
+    </xctk:Wizard>
 </Window>

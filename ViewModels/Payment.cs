@@ -42,6 +42,23 @@ namespace estia.pos.ViewModels
 
         public ObservableCollection<Coin> Coins { get; set; }
 
+        private string searchOption;
+        public string SearchOption
+        {
+            get
+            {
+                return searchOption;
+            }
+            set
+            {
+                if (value != searchOption)
+                {
+                    searchOption = value;
+                    OnPropertyChanged("SearchOption");
+                }
+            }
+        }
+
         public decimal Total
         {
             get
@@ -118,6 +135,23 @@ namespace estia.pos.ViewModels
             }
         }
 
+        private string buildTitle;
+        public string BuildTitle
+        {
+            get
+            {
+                return buildTitle;
+            }
+            set
+            {
+                if (value != buildTitle)
+                {
+                    buildTitle = value;
+                    OnPropertyChanged("BuildTitle");
+                }
+            }
+        }
+
         private decimal appid;
         public decimal AppId
         {
@@ -131,6 +165,23 @@ namespace estia.pos.ViewModels
                 {
                     appid = value;
                     OnPropertyChanged("AppId");
+                }
+            }
+        }
+
+        private string appTitle;
+        public string AppTitle
+        {
+            get
+            {
+                return appTitle;
+            }
+            set
+            {
+                if (value != appTitle)
+                {
+                    appTitle = value;
+                    OnPropertyChanged("AppTitle");
                 }
             }
         }

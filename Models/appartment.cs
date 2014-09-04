@@ -129,5 +129,13 @@ namespace estia.pos.Models
         public virtual Building Building { get; set; }
 
         public virtual ICollection<KoinoxristaAnalyshDiamer> KoinoxristaAnalyshDiamers { get; set; }
+
+        public string FullTitle
+        {
+            get
+            {
+                return string.Format("{0} {1} {2}",apptitle,ownerid,resedentid);
+            }
+        }
     }
 }
