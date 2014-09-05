@@ -12,21 +12,21 @@ namespace estia.pos.ViewModels
         public Payment()
         {
             Coins = new ObservableCollection<Coin>();
-            Coins.Add(new Coin() { Amount = 500, Quantity = 0, Title="500 ευρώ" });
-            Coins.Add(new Coin() { Amount = 200, Quantity = 0, Title = "200 ευρώ" });
-            Coins.Add(new Coin() { Amount = 100, Quantity = 0, Title = "100 ευρώ" });
-            Coins.Add(new Coin() { Amount = 50, Quantity = 0, Title = "50 ευρώ" });
-            Coins.Add(new Coin() { Amount = 20, Quantity = 0, Title = "20 ευρώ" });
-            Coins.Add(new Coin() { Amount = 10, Quantity = 0, Title = "10 ευρώ" });
-            Coins.Add(new Coin() { Amount = 5, Quantity = 0, Title = "5 ευρώ" });
-            Coins.Add(new Coin() { Amount = 2, Quantity = 0, Title = "2 ευρώ" });
-            Coins.Add(new Coin() { Amount = 1, Quantity = 0, Title = "1 ευρώ" });
-            Coins.Add(new Coin() { Amount = 0.5M, Quantity = 0, Title = "50 λεπτά" });
-            Coins.Add(new Coin() { Amount = 0.2M, Quantity = 0, Title = "20 λεπτά" });
-            Coins.Add(new Coin() { Amount = 0.1M, Quantity = 0, Title = "10 λεπτά" });
-            Coins.Add(new Coin() { Amount = 0.05M, Quantity = 0, Title = "5 λεπτά" });
-            Coins.Add(new Coin() { Amount = 0.02M, Quantity = 0, Title = "2 λεπτά" });
-            Coins.Add(new Coin() { Amount = 0.01M, Quantity = 0, Title = "1 λεπτά" });
+            Coins.Add(new Coin() { Amount = 500, Quantity = 0, Title = "500 ευρώ", Icon = "Resources/e50000.jpg" });
+            Coins.Add(new Coin() { Amount = 200, Quantity = 0, Title = "200 ευρώ", Icon = "Resources/e20000.jpg" });
+            Coins.Add(new Coin() { Amount = 100, Quantity = 0, Title = "100 ευρώ", Icon = "Resources/e10000.jpg" });
+            Coins.Add(new Coin() { Amount = 50, Quantity = 0, Title = "50 ευρώ", Icon = "Resources/e05000.jpg" });
+            Coins.Add(new Coin() { Amount = 20, Quantity = 0, Title = "20 ευρώ", Icon = "Resources/e02000.jpg" });
+            Coins.Add(new Coin() { Amount = 10, Quantity = 0, Title = "10 ευρώ", Icon = "Resources/e01000.jpg" });
+            Coins.Add(new Coin() { Amount = 5, Quantity = 0, Title = "5 ευρώ", Icon = "Resources/e00500.jpg" });
+            Coins.Add(new Coin() { Amount = 2, Quantity = 0, Title = "2 ευρώ", Icon = "Resources/e00200.jpg" });
+            Coins.Add(new Coin() { Amount = 1, Quantity = 0, Title = "1 ευρώ", Icon = "Resources/e00100.jpg" });
+            Coins.Add(new Coin() { Amount = 0.5M, Quantity = 0, Title = "50 λεπτά", Icon = "Resources/e00050.jpg" });
+            Coins.Add(new Coin() { Amount = 0.2M, Quantity = 0, Title = "20 λεπτά", Icon = "Resources/e00020.jpg" });
+            Coins.Add(new Coin() { Amount = 0.1M, Quantity = 0, Title = "10 λεπτά", Icon = "Resources/e00010.jpg" });
+            Coins.Add(new Coin() { Amount = 0.05M, Quantity = 0, Title = "5 λεπτά", Icon = "Resources/e00005.jpg" });
+            Coins.Add(new Coin() { Amount = 0.02M, Quantity = 0, Title = "2 λεπτά", Icon = "Resources/e00002.jpg" });
+            Coins.Add(new Coin() { Amount = 0.01M, Quantity = 0, Title = "1 λεπτά", Icon = "Resources/e00001.jpg" });
 
             foreach(var item in Coins)
             {
@@ -213,6 +213,23 @@ namespace estia.pos.ViewModels
 
     public class Coin : INotifyPropertyChanged
     {
+        private string icon;
+        public string Icon
+        {
+            get
+            {
+                return icon;
+            }
+            set
+            {
+                if (value != icon)
+                {
+                    icon = value;
+                    OnPropertyChanged("Icon");
+                }
+            }
+        }
+
         private string title;
         public string Title 
         {
@@ -225,7 +242,7 @@ namespace estia.pos.ViewModels
                 if (value != title)
                 {
                     title = value;
-                    OnPropertyChanged("title");
+                    OnPropertyChanged("Title");
                 }
             }
         }

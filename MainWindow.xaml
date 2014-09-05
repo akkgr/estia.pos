@@ -7,6 +7,7 @@
         xmlns:ViewModels="clr-namespace:estia.pos.ViewModels"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:estia.pos.Helpers"
+        xmlns:properties="clr-namespace:estia.pos.Properties"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="estia.pos.MainWindow"
         Title="Πληρωμή Λογαρισμού" Height="600" Width="800" Loaded="Window_Loaded">
 
@@ -24,12 +25,14 @@
         <xctk:WizardPage x:Name="FirstPage" 
                                    Title="Πληρωμή Λογαριασμού"
                                    Description="Επιλογή Τρόπου Αναζήτησης Λογιαριασμού.">
+            <xctk:BusyIndicator x:Name="Indicator1">
             <StackPanel Orientation="Horizontal">
                 <RadioButton x:Name="query" Content="Αναζήτηση Διαμερίσματος"
                              IsChecked="{Binding Path=SearchOption, Converter={StaticResource BooleanToStringValueConverter}, ConverterParameter=Page1}"/>
                 <RadioButton x:Name="scan" Content="Συμπλήρωση Αριθμού Λογαριασμού" Margin="10,0,0,0"
                              IsChecked="{Binding Path=SearchOption, Converter={StaticResource BooleanToStringValueConverter}, ConverterParameter=Page2}"/>
             </StackPanel>
+            </xctk:BusyIndicator>
         </xctk:WizardPage>
         <xctk:WizardPage x:Name="Page1" PageType="Interior"
                                    Title="1ο βήμα"
@@ -38,12 +41,12 @@
                          Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=query}">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
                 <Label Content="Κτίριο" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <ComboBox x:Name="BuildCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="274"
+                <ComboBox x:Name="BuildCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="300"
 					DisplayMemberPath="Title"
 					SelectedValuePath="BuildID"
 					SelectedValue="{Binding BuildId}" />
                 <Label Content="Διαμέρισμα" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                <ComboBox x:Name="AppCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" 
+                <ComboBox x:Name="AppCombo" HorizontalAlignment="Left" VerticalAlignment="Center" Width="300" 
 					ItemsSource="{Binding Source={StaticResource SortedItems}}"
 					DisplayMemberPath="FullTitle" 
 					SelectedValuePath="appid" 
@@ -62,30 +65,34 @@
         <xctk:WizardPage x:Name="Page3" PageType="Interior"
                                    Title="2ο βήμα"
                                    Description="Οφειλή Διαμερίσματος">
-            <DockPanel HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
                 <Label FontWeight="Bold" HorizontalAlignment="Center"
                        Content="{Binding BuildTitle, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                 <Label FontWeight="Bold" HorizontalAlignment="Center"
                        Content="{Binding AppTitle, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                 <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
                        Content="{Binding Dept, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-            </DockPanel>
+            </StackPanel>
         </xctk:WizardPage>
         <xctk:WizardPage x:Name="Page4" PageType="Interior"
                                    Title="3ο βήμα"
                                    Description="Παρέλαβα">
             <StackPanel>
                 <ItemsControl ItemsSource="{Binding Coins}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" Margin="5" MaxWidth="700" MinWidth="700" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100" />
-                                    <ColumnDefinition Width="100" />
-                                </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{Binding Title}"/>
-                                <xctk:ByteUpDown Grid.Column="1" Text="{Binding Quantity, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                            </Grid>
+                            <Border Margin="2" CornerRadius="8" BorderThickness="1" BorderBrush="Black" Padding="2">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="120">
+                                <Image RenderOptions.BitmapScalingMode="HighQuality" Height="60" Grid.Column="2" Source="{Binding Icon}"></Image>
+                                <Label HorizontalAlignment="Center" FontWeight="Bold" Margin="0,2" Content="{Binding Title}"/>
+                                <xctk:ByteUpDown Width="100" Text="{Binding Quantity, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
