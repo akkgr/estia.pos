@@ -21,17 +21,18 @@
         <local:BooleanToStringValueConverter x:Key="BooleanToStringValueConverter" />
     </Window.Resources>
 
-    <xctk:Wizard x:Name="Wizard1" FinishButtonClosesWindow="True" CanHelp="False">
-        <xctk:WizardPage x:Name="FirstPage" 
+    <xctk:Wizard x:Name="Wizard1" CanHelp="False" HelpButtonVisibility="Hidden" 
+                 CancelButtonClosesWindow="False" FinishButtonClosesWindow="False">
+        <xctk:WizardPage x:Name="FirstPage" PageType="Interior"
                                    Title="Πληρωμή Λογαριασμού"
                                    Description="Επιλογή Τρόπου Αναζήτησης Λογιαριασμού.">
             <xctk:BusyIndicator x:Name="Indicator1">
-            <StackPanel Orientation="Horizontal">
-                <RadioButton x:Name="query" Content="Αναζήτηση Διαμερίσματος"
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton x:Name="query" Content="Αναζήτηση Διαμερίσματος"
                              IsChecked="{Binding Path=SearchOption, Converter={StaticResource BooleanToStringValueConverter}, ConverterParameter=Page1}"/>
-                <RadioButton x:Name="scan" Content="Συμπλήρωση Αριθμού Λογαριασμού" Margin="10,0,0,0"
+                    <RadioButton x:Name="scan" Content="Αναζήτηση Αριθμού Λογαριασμού" Margin="10,0,0,0"
                              IsChecked="{Binding Path=SearchOption, Converter={StaticResource BooleanToStringValueConverter}, ConverterParameter=Page2}"/>
-            </StackPanel>
+                </StackPanel>
             </xctk:BusyIndicator>
         </xctk:WizardPage>
         <xctk:WizardPage x:Name="Page1" PageType="Interior"
@@ -76,8 +77,21 @@
         </xctk:WizardPage>
         <xctk:WizardPage x:Name="Page4" PageType="Interior"
                                    Title="3ο βήμα"
-                                   Description="Παρέλαβα">
+                                   Description="Ποσό Πληρωμής">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center">
+                <RadioButton x:Name="all" Content="Όλο το ποσό της οφειλής" IsChecked="{Binding PayAll}"/>
+                <RadioButton x:Name="part" Content="Μέρος του ποσού της οφειλής" IsChecked="False" Margin="10,0,0,0"/>
+                <TextBox Margin="10,0,0,0" Width="100" 
+                             Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=part}"
+                             Text="{Binding Amount, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+        </xctk:WizardPage>
+        <xctk:WizardPage x:Name="Page5" PageType="Interior"
+                                   Title="4ο βήμα"
+                                   Description="Παρέλαβα το Ποσό">
             <StackPanel>
+                <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
+                                Content="{Binding Total, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
                 <ItemsControl ItemsSource="{Binding Coins}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -86,33 +100,43 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Margin="2" CornerRadius="8" BorderThickness="1" BorderBrush="Black" Padding="2">
-                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="120">
-                                <Image RenderOptions.BitmapScalingMode="HighQuality" Height="60" Grid.Column="2" Source="{Binding Icon}"></Image>
-                                <Label HorizontalAlignment="Center" FontWeight="Bold" Margin="0,2" Content="{Binding Title}"/>
-                                <xctk:ByteUpDown Width="100" Text="{Binding Quantity, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
+                            <Border Margin="2" CornerRadius="8" BorderThickness="1" BorderBrush="Black" Padding="2" Background="White">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="120">
+                                    <Image RenderOptions.BitmapScalingMode="HighQuality" Height="60" Grid.Column="2" Source="{Binding Icon}"></Image>
+                                    <Label HorizontalAlignment="Center" FontWeight="Bold" Margin="0,2" Content="{Binding Title}"/>
+                                    <xctk:ByteUpDown FontSize="16" Height="30" Width="100" Text="{Binding Quantity, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
-                                Content="{Binding Total, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
         </xctk:WizardPage>
         <xctk:WizardPage x:Name="LastPage" PageType="Interior"
                                    Title="Ολοκλήρωση"
-                                   Description="Ποσό Εξόφλησης"
+                                   Description="Απόδειξη"
                                    CanFinish="True">
-            <StackPanel Orientation="Horizontal">
-                <RadioButton VerticalAlignment="Center" x:Name="all" Content="Όλο το ποσό της οφειλής" IsChecked="True"/>
-                <RadioButton VerticalAlignment="Center" x:Name="part" Content="Μέρος του ποσού της οφειλής" IsChecked="False" Margin="10,0,0,0"/>
-                <TextBox VerticalAlignment="Center" Margin="10,0,0,0" Width="100" 
-                             Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=part}"
-                             Text="{Binding Amount, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                <Button VerticalAlignment="Center"  Margin="10,0,0,0" Padding="5" Click="calcReturn" Content="Ρέστα"/>
-                <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Ρέστα: {0:c2}"
+            <StackPanel>
+                <Label HorizontalAlignment="Center" FontWeight="Bold" ContentStringFormat="Ρέστα: {0:c2}"
                        Content="{Binding Refound}"/>
+                <ItemsControl ItemsSource="{Binding RefoundCoins}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" Margin="5" MaxWidth="700" MinWidth="700" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="2" CornerRadius="8" BorderThickness="1" BorderBrush="Black" Padding="2" Background="White">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="120">
+                                    <Image RenderOptions.BitmapScalingMode="HighQuality" Height="60" Grid.Column="2" Source="{Binding Icon}"></Image>
+                                    <Label HorizontalAlignment="Center" FontWeight="Bold" Margin="0,2" Content="{Binding Title}"/>
+                                    <Label FontSize="16" FontWeight="Bold" Width="100" Content="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </xctk:WizardPage>
     </xctk:Wizard>

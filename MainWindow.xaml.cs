@@ -30,7 +30,7 @@ namespace estia.pos
             InitializeComponent();
 
             db = new EstiaModel();
-            payment = new Payment() { SearchOption="Page2"};
+            payment = new Payment() { SearchOption="Page2", PayAll=true};
             pageOrder();
             this.Loaded += Window_Loaded;
             payment.PropertyChanged += payment_PropertyChanged;
@@ -55,6 +55,11 @@ namespace estia.pos
                 payment.AppTitle = (this.AppCombo.SelectedItem as appartment).FullTitle;
                 payment.Dept = q.Count()==0?0M:q.Sum();
             }
+
+            if (this.Wizard1.CurrentPage == Page5)
+            {
+                calcReturn();
+            }
         }
 
         void payment_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -65,7 +70,6 @@ namespace estia.pos
             }
         }
         
-
         private void pageOrder()
         {
             if (payment.SearchOption.Equals("Page1"))
@@ -80,10 +84,17 @@ namespace estia.pos
             }
         }
                 
-        private void calcReturn(object sender, RoutedEventArgs e)
+        private void calcReturn()
         {
             if (payment.Amount == 0) payment.Amount = payment.Dept;
             payment.Refound = payment.Total -  payment.Amount;
+            var change = payment.Refound;
+            foreach (var coin in payment.RefoundCoins)
+            {
+                int count = (int)(change / coin.Amount);
+                change -= count * coin.Amount;
+                coin.Quantity = count;
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
