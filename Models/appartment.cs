@@ -134,7 +134,7 @@ namespace estia.pos.Models
         {
             get
             {
-                return string.Format("{0} {1} {2}",apptitle,ownerid,resedentid);
+                return string.Format("{0} | {2} | {1} ", apptitle, ownerid, resedentid);
             }
         }
     }

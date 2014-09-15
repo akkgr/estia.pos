@@ -19,6 +19,7 @@
         </CollectionViewSource>
         <BooleanToVisibilityConverter x:Key="convVisibility"/>
         <local:BooleanToStringValueConverter x:Key="BooleanToStringValueConverter" />
+        <local:GreaterThanZeroValueConverter x:Key="GreaterThanZeroValueConverter" />
     </Window.Resources>
 
     <xctk:Wizard x:Name="Wizard1" CanHelp="False" HelpButtonVisibility="Hidden" 
@@ -51,7 +52,8 @@
 					ItemsSource="{Binding Source={StaticResource SortedItems}}"
 					DisplayMemberPath="FullTitle" 
 					SelectedValuePath="appid" 
-					SelectedValue="{Binding AppId}" />
+					SelectedValue="{Binding AppId}">
+                </ComboBox>
             </StackPanel>
         </xctk:WizardPage>
         <xctk:WizardPage x:Name="Page2" PageType="Interior"
@@ -71,23 +73,23 @@
                        Content="{Binding BuildTitle, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                 <Label FontWeight="Bold" HorizontalAlignment="Center"
                        Content="{Binding AppTitle, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label FontWeight="Bold" HorizontalAlignment="Center"
+                       Content="{Binding Resident, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                <Label FontWeight="Bold" HorizontalAlignment="Center"
+                       Content="{Binding Owner, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                 <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
                        Content="{Binding Dept, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-            </StackPanel>
-        </xctk:WizardPage>
-        <xctk:WizardPage x:Name="Page4" PageType="Interior"
-                                   Title="3ο βήμα"
-                                   Description="Ποσό Πληρωμής">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center">
-                <RadioButton x:Name="all" Content="Όλο το ποσό της οφειλής" IsChecked="{Binding PayAll}"/>
-                <RadioButton x:Name="part" Content="Μέρος του ποσού της οφειλής" IsChecked="False" Margin="10,0,0,0"/>
-                <TextBox Margin="10,0,0,0" Width="100" 
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center">
+                    <RadioButton x:Name="all" Content="Όλο το ποσό της οφειλής" IsChecked="{Binding PayAll}"/>
+                    <RadioButton x:Name="part" Content="Μέρος του ποσού της οφειλής" IsChecked="False" Margin="10,0,0,0"/>
+                    <TextBox Margin="10,0,0,0" Width="100" 
                              Visibility="{Binding IsChecked, Converter={StaticResource convVisibility}, ElementName=part}"
                              Text="{Binding Amount, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
             </StackPanel>
         </xctk:WizardPage>
         <xctk:WizardPage x:Name="Page5" PageType="Interior"
-                                   Title="4ο βήμα"
+                                   Title="3ο βήμα"
                                    Description="Παρέλαβα το Ποσό">
             <StackPanel>
                 <Label FontWeight="Bold" HorizontalAlignment="Center" ContentStringFormat="Σύνολο: {0:c2}"
@@ -104,7 +106,17 @@
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="120">
                                     <Image RenderOptions.BitmapScalingMode="HighQuality" Height="60" Grid.Column="2" Source="{Binding Icon}"></Image>
                                     <Label HorizontalAlignment="Center" FontWeight="Bold" Margin="0,2" Content="{Binding Title}"/>
-                                    <xctk:ByteUpDown FontSize="16" Height="30" Width="100" Text="{Binding Quantity, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                    <xctk:ByteUpDown FontSize="16" Height="30" Width="100" Text="{Binding Quantity, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                        <xctk:ByteUpDown.Style>
+                                            <Style>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, Converter={StaticResource GreaterThanZeroValueConverter}, RelativeSource={RelativeSource Self}}" Value="True">
+                                                        <Setter Property="Border.Background" Value="Red" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </xctk:ByteUpDown.Style>
+                                    </xctk:ByteUpDown>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
@@ -131,7 +143,17 @@
                                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="120">
                                     <Image RenderOptions.BitmapScalingMode="HighQuality" Height="60" Grid.Column="2" Source="{Binding Icon}"></Image>
                                     <Label HorizontalAlignment="Center" FontWeight="Bold" Margin="0,2" Content="{Binding Title}"/>
-                                    <Label FontSize="16" FontWeight="Bold" Width="100" Content="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Label FontSize="16" FontWeight="Bold" Width="100" Content="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}">
+                                        <Label.Style>
+                                            <Style>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Content, Converter={StaticResource GreaterThanZeroValueConverter}, RelativeSource={RelativeSource Self}}" Value="True">
+                                                        <Setter Property="Label.Background" Value="Red" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>

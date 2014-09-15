@@ -205,6 +205,40 @@ namespace estia.pos.ViewModels
             }
         }
 
+        private string owner;
+        public string Owner
+        {
+            get
+            {
+                return owner;
+            }
+            set
+            {
+                if (value != owner)
+                {
+                    owner = value;
+                    OnPropertyChanged("Owner");
+                }
+            }
+        }
+
+        private string resident;
+        public string Resident
+        {
+            get
+            {
+                return resident;
+            }
+            set
+            {
+                if (value != resident)
+                {
+                    resident = value;
+                    OnPropertyChanged("Resident");
+                }
+            }
+        }
+
         private string barcode;
         public string Barcode
         {
