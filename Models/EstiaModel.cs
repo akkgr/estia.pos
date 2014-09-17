@@ -34,6 +34,7 @@ namespace estia.pos.Models
         public virtual DbSet<WorkCategory> WorkCategories { get; set; }
         public virtual DbSet<XreosiPistosi> XreosiPistosis { get; set; }
         public virtual DbSet<XreosiPistosi_Eidos> XreosiPistosi_Eidos { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

@@ -15,6 +15,7 @@ using estia.pos.Models;
 using System.Data.Entity;
 using System.Collections.ObjectModel;
 using estia.pos.ViewModels;
+using DevExpress.XtraReports.UI;
 
 namespace estia.pos
 {
@@ -32,7 +33,7 @@ namespace estia.pos
             db = new EstiaModel();
             setContext(true);
             pageOrder();
-            this.Loaded += Window_Loaded;            
+            this.Loaded += Window_Loaded;
             this.Wizard1.Next += Wizard1_Next;
             this.Wizard1.Cancel += Wizard1_Cancel;
             this.Wizard1.Finish += Wizard1_Finish;
@@ -49,22 +50,21 @@ namespace estia.pos
         void Wizard1_Finish(object sender, RoutedEventArgs e)
         {
             if (payment.Amount == 0) return;
-            MessageBoxResult result = MessageBox.Show("Τυπώθηκε η Απόδειξη;", "Πληρωμή Λογαριασμού", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            
+
             Tameio tamio = new Tameio();
             tamio.buildID = payment.BuildId;
             tamio.buildTitle = payment.BuildTitle;
             tamio.APPID = payment.AppId;
             tamio.AppTitle = payment.AppTitle;
-            //tamio.HMER_KOINOXR = clsKoinoxrhsta.GetLastKoinoDate(drTameio.APPID)
-            //tamio.ETOS = drTameio.HMER_KOINOXR.Year
-            //tamio.MHNAS = drTameio.HMER_KOINOXR.Month
-            tamio.HMER_TAMEIOU =DateTime.Now.Date;
+            tamio.HMER_KOINOXR = db.Koinoxristas.Where(t => t.appid == payment.AppId).Max(t => t.ekdosh);
+            tamio.ETOS = tamio.HMER_KOINOXR.Value.Year;
+            tamio.MHNAS = tamio.HMER_KOINOXR.Value.Month;
+            tamio.HMER_TAMEIOU = DateTime.Now.Date;
             tamio.POSO = payment.Amount;
-            //tamio.app_USERID = myUser.UserID
-            //tamio.app_USER = myUser.Usename
-            //tamio.Emp_USERID = myUser.UserID
-            //tamio.Emp_USER = myUser.Usename
+            tamio.app_USERID = payment.UserId;
+            tamio.app_USER = payment.UserName;
+            tamio.Emp_USERID = payment.UserId;
+            tamio.Emp_USER = payment.UserName;
             tamio.B_PLHRWTHIKE = false;
             tamio.B_PLHRWMH_STO_GRAFEIO = true;
             tamio.B_AKYRH = false;
@@ -86,15 +86,50 @@ namespace estia.pos
             xp.log_hmer = DateTime.Now;
             xp.byUser = "";
             xp.parathrhseis = "ΠΛΗΡΩΜΗ ΣΤΟ ΓΡΑΦΕΙΟ";
-            xp.poso = - payment.Amount;
+            xp.poso = -payment.Amount;
             xp.mhnas = tamio.MHNAS;
             xp.etos = tamio.ETOS;
 
-            if (result == MessageBoxResult.Yes)
+            try
             {
-                setContext(false);
-                this.Wizard1.CurrentPage = this.FirstPage;
+                db.Tameios.Add(tamio);
+                db.XreosiPistosis.Add(xp);
+                db.SaveChanges();
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+
+            do
+            {
+                printReceipt(tamio.barcode);
+            } while (
+            MessageBox.Show("Τυπώθηκε η Απόδειξη; Αν επιλέξετε Νο η Απόδειξη θα τυπωθεί ξανά.",
+                "Πληρωμή Λογαριασμού", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes
+            );
+
+            setContext(false);
+            this.Wizard1.CurrentPage = this.FirstPage;
+        }
+
+        void printReceipt(string barcode)
+        {
+            List<Receipt> list = new List<Receipt>();
+            Reports.ReceiptReport rpt = new Reports.ReceiptReport();
+            Receipt r = new Receipt();
+            r.building = payment.BuildTitle;
+            r.apartment = payment.AppTitle;
+            r.hmeromhnia = DateTime.Now;
+            r.owner = payment.Owner;
+            r.poso = payment.Amount;
+            r.resident = payment.Resident;
+            r.XP_ID = barcode;
+            list.Add(r);
+            rpt.DataSource = list;
+            rpt.PrinterName = Properties.Settings.Default.PrinterName;
+            rpt.Print();
         }
 
         void Wizard1_Cancel(object sender, RoutedEventArgs e)
@@ -105,6 +140,18 @@ namespace estia.pos
 
         void Wizard1_Next(object sender, Xceed.Wpf.Toolkit.Core.CancelRoutedEventArgs e)
         {
+            if (this.Wizard1.CurrentPage == LoginPage)
+            {
+                var user = db.Users.FirstOrDefault(t => t.Username == payment.UserName && t.Password == this.Password.Password);
+                if (user == null)
+                {
+                    MessageBox.Show("Λάθος UserName ή Password.");
+                    e.Cancel = true;
+                    return;
+                }
+                payment.UserId = user.UserID;
+            }
+
             if (this.Wizard1.CurrentPage == Page1)
             {
                 if (payment.AppId == 0)
@@ -114,15 +161,15 @@ namespace estia.pos
                 }
 
                 var q = from p in db.XreosiPistosis
-                         where p.appid == payment.AppId
-                         && p.b_isxyei == true
-                         select p.poso;
+                        where p.appid == payment.AppId
+                        && p.b_isxyei == true
+                        select p.poso;
 
                 payment.BuildTitle = (this.BuildCombo.SelectedItem as Building).Title;
                 payment.AppTitle = (this.AppCombo.SelectedItem as appartment).apptitle;
                 payment.Owner = (this.AppCombo.SelectedItem as appartment).ownerid;
                 payment.Resident = (this.AppCombo.SelectedItem as appartment).resedentid;
-                payment.Dept = q.Count()==0?0M:q.Sum();
+                payment.Dept = q.Count() == 0 ? 0M : q.Sum();
             }
 
             if (this.Wizard1.CurrentPage == Page2)
@@ -134,8 +181,8 @@ namespace estia.pos
                 }
 
                 var tameio = (from p in db.Tameios
-                             where p.barcode.Equals(payment.Barcode)
-                             select p).FirstOrDefault();
+                              where p.barcode.Equals(payment.Barcode)
+                              select p).FirstOrDefault();
 
                 if (tameio == null)
                 {
@@ -152,7 +199,7 @@ namespace estia.pos
                         select p.poso;
 
                 payment.BuildTitle = tameio.buildTitle;
-                payment.AppTitle = string.Format("{0} {1} {2}",tameio.AppTitle,tameio.owner,tameio.resident);
+                payment.AppTitle = string.Format("{0} {1} {2}", tameio.AppTitle, tameio.owner, tameio.resident);
                 payment.Dept = q.Count() == 0 ? 0M : q.Sum();
             }
 
@@ -169,7 +216,7 @@ namespace estia.pos
                 pageOrder();
             }
         }
-        
+
         private void pageOrder()
         {
             if (payment.SearchOption.Equals("Page1"))
@@ -183,11 +230,11 @@ namespace estia.pos
                 this.Page3.PreviousPage = this.Page2;
             }
         }
-                
+
         private void calcReturn()
         {
             if (payment.Amount == 0) payment.Amount = payment.Dept;
-            payment.Refound = payment.Total -  payment.Amount;
+            payment.Refound = payment.Total - payment.Amount;
             var change = payment.Refound;
             foreach (var coin in payment.RefoundCoins)
             {
@@ -211,6 +258,6 @@ namespace estia.pos
         {
             base.OnClosing(e);
             this.db.Dispose();
-        } 
+        }
     }
 }

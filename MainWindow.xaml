@@ -22,19 +22,37 @@
         <local:GreaterThanZeroValueConverter x:Key="GreaterThanZeroValueConverter" />
     </Window.Resources>
 
+    <xctk:BusyIndicator x:Name="Indicator1">
     <xctk:Wizard x:Name="Wizard1" CanHelp="False" HelpButtonVisibility="Hidden" 
                  CancelButtonClosesWindow="False" FinishButtonClosesWindow="False">
+            <xctk:WizardPage x:Name="LoginPage" PageType="Interior"
+                Title="Σύνδεση"
+                Description="Σύνδεση για πρόσβαση στην εφαρμογή."
+                CanCancel="False">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Row="0" Grid.Column="0" Content="User Name" Margin="10"></Label>
+                    <TextBox Grid.Row="0" Grid.Column="1" Margin="10" Text="{Binding UserName}"></TextBox>
+                    <Label Grid.Row="1" Grid.Column="0" Content="Password" Margin="10"></Label>
+                    <PasswordBox x:Name="Password" Grid.Row="1" Grid.Column="1" Margin="10"></PasswordBox>
+                </Grid>
+        </xctk:WizardPage>
         <xctk:WizardPage x:Name="FirstPage" PageType="Interior"
                                    Title="Πληρωμή Λογαριασμού"
-                                   Description="Επιλογή Τρόπου Αναζήτησης Λογιαριασμού.">
-            <xctk:BusyIndicator x:Name="Indicator1">
+                                   Description="Επιλογή Τρόπου Αναζήτησης Λογιαριασμού.">            
                 <StackPanel Orientation="Horizontal">
                     <RadioButton x:Name="query" Content="Αναζήτηση Διαμερίσματος"
                              IsChecked="{Binding Path=SearchOption, Converter={StaticResource BooleanToStringValueConverter}, ConverterParameter=Page1}"/>
                     <RadioButton x:Name="scan" Content="Αναζήτηση Αριθμού Λογαριασμού" Margin="10,0,0,0"
                              IsChecked="{Binding Path=SearchOption, Converter={StaticResource BooleanToStringValueConverter}, ConverterParameter=Page2}"/>
-                </StackPanel>
-            </xctk:BusyIndicator>
+                </StackPanel>            
         </xctk:WizardPage>
         <xctk:WizardPage x:Name="Page1" PageType="Interior"
                                    Title="1ο βήμα"
@@ -162,4 +180,5 @@
             </StackPanel>
         </xctk:WizardPage>
     </xctk:Wizard>
+    </xctk:BusyIndicator>
 </Window>

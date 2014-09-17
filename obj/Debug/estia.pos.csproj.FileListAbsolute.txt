@@ -97,3 +97,5 @@ D:\GitHub\estia.pos\obj\Debug\estia.pos.csproj.GenerateResource.Cache
 D:\GitHub\estia.pos\obj\Debug\estia.pos.exe
 D:\GitHub\estia.pos\obj\Debug\estia.pos.pdb
 D:\GitHub\estia.pos\obj\Debug\estia.pos.csprojResolveAssemblyReference.cache
+D:\GitHub\estia.pos\obj\Debug\estia.pos.Reports.ReceiptReport.resources
+D:\GitHub\estia.pos\obj\Debug\estia.pos.exe.licenses
