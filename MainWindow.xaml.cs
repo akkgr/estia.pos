@@ -26,6 +26,9 @@ namespace estia.pos
     {
         private EstiaModel db;
         private Payment payment;
+        private int userID;
+        private string userName;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -61,10 +64,10 @@ namespace estia.pos
             tamio.MHNAS = tamio.HMER_KOINOXR.Value.Month;
             tamio.HMER_TAMEIOU = DateTime.Now.Date;
             tamio.POSO = payment.Amount;
-            tamio.app_USERID = payment.UserId;
-            tamio.app_USER = payment.UserName;
-            tamio.Emp_USERID = payment.UserId;
-            tamio.Emp_USER = payment.UserName;
+            tamio.app_USERID = this.userID;
+            tamio.app_USER = this.userName;
+            tamio.Emp_USERID = this.userID;
+            tamio.Emp_USER = this.userName;
             tamio.B_PLHRWTHIKE = false;
             tamio.B_PLHRWMH_STO_GRAFEIO = true;
             tamio.B_AKYRH = false;
@@ -142,14 +145,15 @@ namespace estia.pos
         {
             if (this.Wizard1.CurrentPage == LoginPage)
             {
-                var user = db.Users.FirstOrDefault(t => t.Username == payment.UserName && t.Password == this.Password.Password);
+                var user = db.Users.FirstOrDefault(t => t.Username == this.UserName.Text && t.Password == this.Password.Password);
                 if (user == null)
                 {
                     MessageBox.Show("Λάθος UserName ή Password.");
                     e.Cancel = true;
                     return;
                 }
-                payment.UserId = user.UserID;
+                this.userID = user.UserID;
+                this.userName = user.Username;
             }
 
             if (this.Wizard1.CurrentPage == Page1)
@@ -199,12 +203,46 @@ namespace estia.pos
                         select p.poso;
 
                 payment.BuildTitle = tameio.buildTitle;
-                payment.AppTitle = string.Format("{0} {1} {2}", tameio.AppTitle, tameio.owner, tameio.resident);
+                payment.AppTitle = tameio.AppTitle;
+                payment.Owner = tameio.owner;
+                payment.Resident = tameio.resident;
                 payment.Dept = q.Count() == 0 ? 0M : q.Sum();
+            }
+
+            if (this.Wizard1.CurrentPage == Page3)
+            {
+                if (payment.Dept <= 0)
+                {
+                    MessageBox.Show("Δεν υπάρχει οφειλή.");
+                    e.Cancel = true;
+                    return;
+                }
+                if (this.all.IsChecked == true)
+                {
+                    payment.Amount = payment.Dept;
+                }
+                if (this.part.IsChecked == true && payment.Amount <= 0)
+                {
+                    MessageBox.Show("Δεν συμπληρώσατε ποσό πληρωμής.");
+                    e.Cancel = true;
+                    return;
+                }
             }
 
             if (this.Wizard1.CurrentPage == Page5)
             {
+                if (payment.Total == 0)
+                {
+                    MessageBox.Show("Δεν πήρατε χρήματα.");
+                    e.Cancel = true;
+                    return;
+                }
+                if (payment.Total < payment.Amount)
+                {
+                    MessageBox.Show("Πήρατε λιγότερα χρήματα απο το ποσό πληρωμής.");
+                    e.Cancel = true;
+                    return;
+                }
                 calcReturn();
             }
         }
@@ -233,7 +271,6 @@ namespace estia.pos
 
         private void calcReturn()
         {
-            if (payment.Amount == 0) payment.Amount = payment.Dept;
             payment.Refound = payment.Total - payment.Amount;
             var change = payment.Refound;
             foreach (var coin in payment.RefoundCoins)

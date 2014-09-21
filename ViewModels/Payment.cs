@@ -275,40 +275,6 @@ namespace estia.pos.ViewModels
             }
         }
 
-        private string userName;
-        public string UserName
-        {
-            get
-            {
-                return userName;
-            }
-            set
-            {
-                if (value != userName)
-                {
-                    userName = value;
-                    OnPropertyChanged("UserName");
-                }
-            }
-        }
-
-        private int userId;
-        public int UserId
-        {
-            get
-            {
-                return userId;
-            }
-            set
-            {
-                if (value != userId)
-                {
-                    userId = value;
-                    OnPropertyChanged("UserId");
-                }
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
